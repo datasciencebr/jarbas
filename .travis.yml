@@ -6,6 +6,15 @@ python:
 
 services:
   - postgresql
+  - docker
+
+env:
+  global:
+    - secure: "" # DOCKER_EMAIL
+    - secure: "" # DOCKER_USER
+    - secure: "" # DOCKER_PASS
+    - REPOSITORY: "datasciencebr/jarbas"
+    - COMMIT=${TRAVIS_COMMIT::8}
 
 branches:
   only:
@@ -30,3 +39,9 @@ script:
 
 after_success:
   - coveralls
+  - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+  - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH ; fi`
+  - docker build -f Dockerfile -t $REPOSITORY:$COMMIT .
+  - docker tag $REPOSITORY:$COMMIT $REPOSITORY:$TAG
+  - docker tag $REPOSITORY:$COMMIT $REPOSITORY:$TRAVIS_BRANCH
+  - docker push $REPOSITORY
