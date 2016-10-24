@@ -12,6 +12,7 @@ branches:
 install:
   - psql -c 'create database jarbas;' -U postgres
   - npm install
+  - npm install -g elm
   - pip install -r requirements.txt
   - pip install coveralls
 
