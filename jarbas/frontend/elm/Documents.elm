@@ -1,4 +1,4 @@
-module Documents exposing (Msg, Model, model, loadDocuments, getPage, update, updateLanguage, view, totalPages, onlyDigits)
+module Documents exposing (..)
 
 import Char
 import Documents.Fields as Fields
