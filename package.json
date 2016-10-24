@@ -6,12 +6,11 @@
   },
   "scripts": {
     "postinstall": "elm-package install --yes",
-    "pretest" : "elm-make jarbas/frontend/tests/elm-tests/Tests.elm --output test.js",
-    "test": "node test.js",
-    "posttest": "rm test.js"
+    "test": "./node_modules/.bin/elm-test jarbas/frontend/tests/elm-tests/Main.elm"
   },
   "dependencies": {
     "elm": "^0.17.1",
+    "elm-test": "^0.17.3",
     "github-markdown-css": "^2.4.1"
   }
 }
