@@ -5,7 +5,7 @@
     "license": "BSD3",
     "source-directories": [
         "./jarbas/frontend/elm/",
-        "./jarbas/frontend/tests/elm-tests/"
+        "./tests/"
     ],
     "exposed-modules": [],
     "dependencies": {
