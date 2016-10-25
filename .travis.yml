@@ -9,11 +9,10 @@ branches:
   only:
     - master
 
-node_js:
-  - 6
-
 install:
   - psql -c 'create database jarbas;' -U postgres
+  - nvm install 6
+  - nvm use 6
   - npm install
   - npm install -g elm
   - pip install -r requirements.txt
