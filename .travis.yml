@@ -9,12 +9,9 @@ branches:
   only:
     - master
 
-env:
-  - TRAVIS_NODE_VERSION="6"
-
 install:
   - psql -c 'create database jarbas;' -U postgres
-  - rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm install $TRAVIS_NODE_VERSION && nvm use $TRAVIS_NODE_VERSION
+  - rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm install v6 && nvm use v6
   - npm install
   - npm install -g elm
   - pip install -r requirements.txt
