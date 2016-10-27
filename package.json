@@ -6,7 +6,7 @@
   },
   "scripts": {
     "postinstall": "elm-package install --yes",
-    "test": "./node_modules/.bin/elm-test jarbas/frontend/tests/elm-tests/Main.elm"
+    "test": "elm-test jarbas/frontend/tests/elm-tests/Main.elm"
   },
   "dependencies": {
     "elm": "^0.17.1",
