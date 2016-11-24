@@ -1,0 +1,59 @@
+# v2 syntax
+version: '2'
+
+services:
+  # The database service
+  postgres:
+    image: postgres:9.6
+    container_name: jarbas-postgres
+    environment:
+      - POSTGRES_PASSWORD=mysecretpassword
+      - POSTGRES_USER=jarbas
+      - POSTGRES_DB=jarbas
+
+  # The frontend service
+  app:
+    image: jarbas
+    container_name: jarbas-app
+    command: python manage.py runserver 0.0.0.0:80
+    environment:
+      - SECRET_KEY=lets-rock
+      - DATABASE_URL=postgres://jarbas:mysecretpassword@postgres:5432/jarbas
+    ports:
+      - 80
+    links:
+      - postgres
+    depends_on:
+      - postgres
+      - migrations
+
+  # CLI to run migrations
+  migrations:
+    image: jarbas
+    container_name: jarbas-migrations
+    command: python manage.py migrate
+    environment:
+      - SECRET_KEY=lets-rock
+      - DATABASE_URL=postgres://jarbas:mysecretpassword@postgres:5432/jarbas
+    ports:
+      - 80
+    links:
+      - postgres
+    depends_on:
+      - postgres
+
+  # CLI to populate database
+  populate:
+    image: jarbas
+    container_name: jarbas-populate
+    command: python manage.py loaddatasets
+    environment:
+      - SECRET_KEY=lets-rock
+      - DATABASE_URL=postgres://jarbas:mysecretpassword@postgres:5432/jarbas
+    ports:
+      - 80
+    links:
+      - postgres
+    depends_on:
+      - postgres
+      - migrations
