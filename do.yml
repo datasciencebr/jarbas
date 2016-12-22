@@ -1,0 +1,4 @@
+- hosts: digitalocean
+  remote_user: root
+  roles:
+    - role: digitalocean

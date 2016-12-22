@@ -1,0 +1,4 @@
+---
+# vars file for digitalocean
+do_token: "{{vault_do_token}}"
+do_state: present
