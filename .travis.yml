@@ -1,34 +1,29 @@
-sudo: false
-dist: trusty
-
+---
 language: python
-python:
-  - 3.5
+python: "2.7"
 
+# Use the new container infrastructure
+sudo: false
+
+# Install ansible
 addons:
-    postgresql: "9.6"
+  apt:
+    packages:
+    - python-pip
 
-services:
-    - postgresql
-
-env:
-  - DATABASE_URL="postgres://postgres@localhost/jarbas"
+before_install:
+  - openssl aes-256-cbc -K $encrypted_e9aae701de94_key -iv $encrypted_e9aae701de94_iv -in vault.enc -out vault -d
 
 install:
-  - psql -U postgres -c 'create database "jarbas";'
-  - nvm install 6
-  - nvm use 6
-  - npm install
-  - pip install -r requirements.txt coveralls
+  # Install ansible
+  - pip install ansible
 
-before_script:
-  - python manage.py migrate
-  - travis_wait 60 npm run assets
-  - python manage.py collectstatic --no-input
+  # Check ansible version
+  - ansible --version
+
+  # Create ansible.cfg with correct roles_path
+  - printf '[defaults]\nroles_path=../' >ansible.cfg
 
 script:
-  - npm test
-  - coverage run manage.py test -v 3
-
-after_success:
-  - coveralls
+  # Basic role syntax check
+  - ansible-playbook -i hosts do.yml --vault-password-file=vault
