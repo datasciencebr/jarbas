@@ -5,6 +5,7 @@
 *.sqlite3
 htmlcov/
 npm-debug.log
+vault
 
 # cache, compiled & downloaded files
 *.pyc
