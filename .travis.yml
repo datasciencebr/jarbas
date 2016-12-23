@@ -10,7 +10,7 @@ before_install:
 
 install:
   # Install ansible
-  - pip install ansible
+  - pip install ansible dopy
 
   # Check ansible version
   - ansible --version
