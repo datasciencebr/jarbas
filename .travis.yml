@@ -20,4 +20,4 @@ install:
 
 script:
   # Basic role syntax check
-  - ansible-playbook -i hosts do.yml --vault-password-file=vault
+  - ansible-playbook -i hosts do.yml --vault-password-file=vault -vvv
