@@ -24,7 +24,6 @@
   register: my_droplet1
 
 - digital_ocean_domain:
-    id: "{{ my_droplet1.droplet.id }}"
     state: present
     name: "{{ my_droplet1.droplet.name }}.techfree.com.br"
     ip: "{{ my_droplet1.droplet.ip_address }}"
