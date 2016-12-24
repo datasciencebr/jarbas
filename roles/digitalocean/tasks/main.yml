@@ -1,0 +1,61 @@
+---
+# tasks file for digitalocean
+- include_vars: vault.yml
+- name: ensure key exists at DigitalOcean
+  digital_ocean: >
+    state=present
+    command=ssh
+    name=my_ssh_key
+    ssh_pub_key={{ lookup('file', 'id_rsa.pub') }}
+    api_token={{ do_token }}
+  register: my_ssh_key
+
+- name: ensure droplet one exists or remove it
+  digital_ocean: >
+    state={{ do_state }}
+    command=droplet
+    name=droplet-one
+    size_id=512mb
+    region_id=sgp1
+    unique_name=yes
+    image_id=docker-16-04
+    ssh_key_ids={{ my_ssh_key.ssh_key.id }}
+    api_token={{ do_token }}
+  register: my_droplet1
+
+- digital_ocean_domain:
+    state: present
+    name: "{{ my_droplet1.droplet.name }}.techfree.com.br"
+    ip: "{{ my_droplet1.droplet.ip_address }}"
+    api_token: "{{ do_token }}"
+
+- debug: msg="ID is {{ my_droplet1.droplet.id }}"
+  when: do_state == "present"
+
+- debug: msg="IP is {{ my_droplet1.droplet.ip_address }}"
+  when: do_state == "present"
+
+- name: ensure droplet two exists or remove it
+  digital_ocean: >
+    state={{ do_state }}
+    command=droplet
+    name=droplet-two
+    size_id=512mb
+    region_id=sgp1
+    unique_name=yes
+    image_id=docker-16-04
+    ssh_key_ids={{ my_ssh_key.ssh_key.id }}
+    api_token={{ do_token }}
+  register: my_droplet2
+
+- digital_ocean_domain:
+    state: present
+    name: "{{ my_droplet2.droplet.name }}.techfree.com.br"
+    ip: "{{ my_droplet2.droplet.ip_address }}"
+    api_token: "{{ do_token }}"
+
+- debug: msg="ID is {{ my_droplet2.droplet.id }}"
+  when: do_state == "present"
+
+- debug: msg="IP is {{ my_droplet2.droplet.ip_address }}"
+  when: do_state == "present"

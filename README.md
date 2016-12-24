@@ -128,6 +128,36 @@ There is also a [tapioca-wrapper](https://github.com/vintasoftware/tapioca-wrapp
 
 ### Using Docker
 
+#### Settings
+
+Access `docker-compose.yml` in the project's root folder and adjust your settings. These are the main variables:
+
+##### Django settings
+
+* `DEBUG` (_bool_) enable or disable [Django debug mode](https://docs.djangoproject.com/en/1.10/ref/settings/#debug)
+* `SECRET_KEY` (_str_) [Django's secret key](https://docs.djangoproject.com/en/1.10/ref/settings/#std:setting-SECRET_KEY)
+* `ALLOWED_HOSTS` (_str_) [Django's allowed hosts](https://docs.djangoproject.com/en/1.10/ref/settings/#allowed-hosts)
+* `USE_X_FORWARDED_HOST` (_bool_) [Whether to use the `X-Forwarded-Host` header](https://docs.djangoproject.com/en/1.10/ref/settings/#std:setting-USE_X_FORWARDED_HOST)
+* `CACHE_BACKEND` (_str_) [Cache backend](https://docs.djangoproject.com/en/1.10/ref/settings/#std:setting-CACHES-BACKEND) (e.g. `django.core.cache.backends.memcached.MemcachedCache`)
+* `CACHE_LOCATION` (_str_) [Cache location](https://docs.djangoproject.com/en/1.10/ref/settings/#location) (e.g. `localhost:11211`)
+
+##### Database
+
+* `DATABASE_URL` (_string_) [Database URL](https://github.com/kennethreitz/dj-database-url#url-schema), must be [PostgreSQL](https://www.postgresql.org) since Jarbas uses [JSONField](https://docs.djangoproject.com/en/1.10/ref/contrib/postgres/fields/#jsonfield).
+
+##### Amazon S3 settings
+
+* `AMAZON_S3_BUCKET` (_str_) Name of the Amazon S3 bucket to look for datasets (e.g. `serenata-de-amor-data`)
+* `AMAZON_S3_REGION` (_str_) Region of the Amazon S3 (e.g. `s3-sa-east-1`)
+* `AMAZON_S3_CEAPTRANSLATION_DATE` (_str_) File name prefix for dataset guide (e.g. `2016-08-08` for `2016-08-08-ceap-datasets.md`)
+
+##### Google settings
+
+* `GOOGLE_ANALYTICS` (_str_) Google Analytics tracking code (e.g. `UA-123456-7`)
+* `GOOGLE_STREET_VIEW_API_KEY` (_str_) Google Street View Image API key
+
+#### Using
+
 If you have [Docker](https://docs.docker.com/engine/installation/) (with [Docker Compose](https://docs.docker.com/compose/install/)) and make, just run:
 
 ```console
@@ -147,7 +177,7 @@ $ docker-compose run --rm jarbas python manage.py companies <path to companies.x
 
 You can get the datasets running [Rosie](https://github.com/datasciencebr/rosie) or directly with the [toolbox](https://github.com/datasciencebr/rosie).
 
-Also there are some cleaver shortcuts in the `Makefile` if you like it. 
+Also there are some cleaver shortcuts in the `Makefile` if you like it.
 
 If you have some issues with settings, maybe [this section can be helpful](#settings).
 
@@ -172,6 +202,7 @@ In some Linux distros `lzma` is not installed by default. You can check whether 
 #### Settings
 
 Copy `contrib/.env.sample` as `.env` in the project's root folder and adjust your settings. These are the main variables:
+
 
 ##### Django settings
 

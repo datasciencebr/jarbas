@@ -1,12 +1,16 @@
+---
 sudo: false
 dist: trusty
 
 language: python
 python:
-  - 3.5
+  - 2.7
 
 addons:
     postgresql: "9.6"
+
+before_install:
+  - openssl aes-256-cbc -K $encrypted_e9aae701de94_key -iv $encrypted_e9aae701de94_iv -in vault.enc -out vault -d
 
 services:
     - postgresql
@@ -20,6 +24,7 @@ install:
   - nvm use 6
   - npm install
   - pip install -r requirements.txt coveralls
+  - pip install ansible dopy
 
 before_script:
   - python manage.py migrate
@@ -29,6 +34,7 @@ before_script:
 script:
   - npm test
   - coverage run manage.py test -v 3
+  - ansible-playbook -i hosts do.yml --vault-password-file=vault -vvv
 
 after_success:
   - coveralls
