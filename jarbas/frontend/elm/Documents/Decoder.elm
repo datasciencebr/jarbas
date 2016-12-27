@@ -53,12 +53,20 @@ getPage query =
 
 dateInBrazil : String -> Decoder Date.Date
 dateInBrazil str =
-    case Date.fromString (str ++ "T12:00:00-03:00") of
-        Ok date ->
-            Json.Decode.succeed date
+    let
+        withTimezone : String
+        withTimezone =
+            if String.length str == 10 then
+                str ++ "T12:00:00-03:00"
+            else
+                str
+    in
+        case Date.fromString withTimezone of
+            Ok date ->
+                Json.Decode.succeed date
 
-        Err error ->
-            Json.Decode.fail error
+            Err error ->
+                Json.Decode.fail error
 
 
 decoder : Language -> String -> List ( String, String ) -> Decoder Results
