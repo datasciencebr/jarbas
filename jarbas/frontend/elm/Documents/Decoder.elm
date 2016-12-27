@@ -1,13 +1,13 @@
 module Documents.Decoder exposing (..)
 
+import Date
 import Documents.Company.Model as CompanyModel
 import Documents.Inputs.Update as InputsUpdate
 import Documents.Model exposing (Model, Document, Results, results)
 import Documents.Receipt.Decoder as ReceiptDecoder
 import Documents.SameDay.Model as SameDay
 import Internationalization exposing (Language)
-import Json.Decode exposing (Decoder, bool, float, int, keyValuePairs, list, nullable, string)
-import Json.Decode.Extra exposing (date)
+import Json.Decode exposing (Decoder, andThen, bool, float, int, keyValuePairs, list, nullable, string)
 import Json.Decode.Pipeline exposing (decode, hardcoded, required)
 import String
 
@@ -49,6 +49,16 @@ getPage query =
 
             Nothing ->
                 Nothing
+
+
+dateInBrazil : String -> Decoder Date.Date
+dateInBrazil str =
+    case Date.fromString (str ++ "T12:00:00-03:00") of
+        Ok date ->
+            Json.Decode.succeed date
+
+        Err error ->
+            Json.Decode.fail error
 
 
 decoder : Language -> String -> List ( String, String ) -> Decoder Results
@@ -97,7 +107,7 @@ singleDecoder lang apiKey =
             |> required "document_type" int
             |> required "document_number" (nullable string)
             |> required "document_value" float
-            |> required "issue_date" date
+            |> required "issue_date" (string |> andThen dateInBrazil)
             |> required "month" int
             |> required "remark_value" (nullable float)
             |> required "installment" (nullable int)
