@@ -1,5 +1,6 @@
 module Documents.Company.View exposing (streetImageUrl, view)
 
+import Date
 import Documents.Company.Model exposing (Model, Company, Activity)
 import Documents.Company.Update exposing (Msg)
 import Format.Url exposing (url)
@@ -68,6 +69,17 @@ viewImage apiKey company =
         div [] images
 
 
+viewDate : Language -> Maybe Date.Date -> String
+viewDate lang maybeDate =
+    case maybeDate of
+        Just date ->
+            FormattedDate date
+                |> translate lang
+
+        Nothing ->
+            ""
+
+
 viewCompany : Language -> String -> Company -> Html.Html Msg
 viewCompany lang apiKey company =
     let
@@ -75,15 +87,15 @@ viewCompany lang apiKey company =
             [ ( (translate lang CompanyCNPJ), company.cnpj )
             , ( (translate lang CompanyTradeName), Maybe.withDefault "" company.trade_name )
             , ( (translate lang CompanyName), Maybe.withDefault "" company.name )
-            , ( (translate lang CompanyOpeningDate), Maybe.withDefault "" company.opening )
+            , ( (translate lang CompanyOpeningDate), viewDate lang company.opening )
             , ( (translate lang CompanyLegalEntity), Maybe.withDefault "" company.legal_entity )
             , ( (translate lang CompanyType), Maybe.withDefault "" company.company_type )
             , ( (translate lang CompanyStatus), Maybe.withDefault "" company.status )
             , ( (translate lang CompanySituation), Maybe.withDefault "" company.situation )
             , ( (translate lang CompanySituationReason), Maybe.withDefault "" company.situation_reason )
-            , ( (translate lang CompanySituationDate), Maybe.withDefault "" company.situation_date )
+            , ( (translate lang CompanySituationDate), viewDate lang company.situation_date )
             , ( (translate lang CompanySpecialSituation), Maybe.withDefault "" company.special_situation )
-            , ( (translate lang CompanySpecialSituationDate), Maybe.withDefault "" company.special_situation_date )
+            , ( (translate lang CompanySpecialSituationDate), viewDate lang company.special_situation_date )
             , ( (translate lang CompanyResponsibleFederativeEntity), Maybe.withDefault "" company.responsible_federative_entity )
             , ( (translate lang CompanyAddress), Maybe.withDefault "" company.address )
             , ( (translate lang CompanyNumber), Maybe.withDefault "" company.address_number )
@@ -94,7 +106,7 @@ viewCompany lang apiKey company =
             , ( (translate lang CompanyState), Maybe.withDefault "" company.state )
             , ( (translate lang CompanyEmail), Maybe.withDefault "" company.email )
             , ( (translate lang CompanyPhone), Maybe.withDefault "" company.phone )
-            , ( (translate lang CompanyLastUpdated), Maybe.withDefault "" company.last_updated )
+            , ( (translate lang CompanyLastUpdated), viewDate lang company.last_updated )
             ]
 
         rows =
