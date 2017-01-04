@@ -50,14 +50,14 @@ class ReimbursementListView(ListAPIView):
             'applicant_id',
             'cnpj_cpf',
             'document_id',
-            'issue_date__gte',
-            'issue_date__lt',
+            'issue_date_end',
+            'issue_date_start',
             'month',
             'subquota_id',
             'year'
         )
         values = map(self.request.query_params.get, params)
-        filters = {k: v for k, v in zip(params, values) if v is not None}
+        filters = {self.rename(k): v for k, v in zip(params, values) if v}
 
         # select year and applicant ID from the URL path (not query string)
         if year:
@@ -98,6 +98,14 @@ class ReimbursementListView(ListAPIView):
         """
         pairs = ({query.key: v} for v in query.values)
         return reduce(lambda q, new_q: q | Q(**new_q), pairs, Q())
+
+    @staticmethod
+    def rename(key):
+        mapping =  dict(
+            issue_date_start='issue_date__gte',
+            issue_date_end='issue_date__lt'
+        )
+        return mapping.get(key, key)
 
 
 class ReimbursementDetailView(MultipleFieldLookupMixin, RetrieveAPIView):

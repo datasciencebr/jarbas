@@ -86,8 +86,8 @@ class TestListApi(TestCase):
 
     def test_content_with_date_filters(self):
         url = self.all + (
-            '?issue_date__gte=1970-01-01'
-            '&issue_date__lt=1970-02-01'
+            '?issue_date_start=1970-01-01'
+            '&issue_date_end=1970-02-01'
         )
         resp = self.client.get(url)
         content = loads(resp.content.decode('utf-8'))
