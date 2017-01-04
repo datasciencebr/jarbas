@@ -50,6 +50,8 @@ class ReimbursementListView(ListAPIView):
             'applicant_id',
             'cnpj_cpf',
             'document_id',
+            'issue_date__gte',
+            'issue_date__lt',
             'month',
             'subquota_id',
             'year'
