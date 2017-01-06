@@ -646,7 +646,7 @@ translate lang trans =
 
                         2 ->
                             TranslationSet
-                                "Expesne made abroad"
+                                "Expense made abroad"
                                 "Despesa no exterior"
 
                         _ ->

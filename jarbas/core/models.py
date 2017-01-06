@@ -2,7 +2,7 @@ from django.contrib.postgres.fields import JSONField
 from django.db import models
 from requests import head
 
-from jarbas.core.querysets import SameDayQuerySet
+from jarbas.core.querysets import ReimbursementQuerySet
 
 
 class Receipt:
@@ -11,9 +11,9 @@ class Receipt:
         self.year = year
         self.applicant_id = applicant_id
         self.document_id = document_id
-        self.url = self.get_url()
 
-    def get_url(self):
+    @property
+    def url(self):
         args = (self.applicant_id, self.year, self.document_id)
         return (
             'http://www.camara.gov.br/'
@@ -22,7 +22,7 @@ class Receipt:
 
     @property
     def exists(self):
-        status = head(self.get_url()).status_code
+        status = head(self.url).status_code
         return 200 <= status < 400
 
 
@@ -74,7 +74,7 @@ class Reimbursement(models.Model):
     receipt_fetched = models.BooleanField('Was the receipt URL fetched?', default=False, db_index=True)
     receipt_url = models.CharField('Receipt URL', max_length=140, blank=True, null=True)
 
-    objects = models.Manager.from_queryset(SameDayQuerySet)()
+    objects = models.Manager.from_queryset(ReimbursementQuerySet)()
 
     class Meta:
         ordering = ['-issue_date']
