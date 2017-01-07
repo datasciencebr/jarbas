@@ -63,7 +63,7 @@ def _str_to_tuple(filters):
 
 
 def _rename_key(key):
-    mapping =  dict(
+    mapping = dict(
         issue_date_start='issue_date__gte',
         issue_date_end='issue_date__lt'
     )
