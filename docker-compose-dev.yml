@@ -28,7 +28,7 @@ services:
       context: .
       dockerfile: dockerfiles/dev/Dockerfile-elm
     volumes:
-      - "./:/code"
+      - "./jarbas:/code/jarbas"
     command: [npm, run, watch]
 
   nginx:
