@@ -23,7 +23,6 @@ services:
         aliases:
           - apps
 
-
   elm:
     build:
       context: .
@@ -31,6 +30,7 @@ services:
     volumes:
       - "./:/code"
     command: [npm, run, watch]
+
   nginx:
     build:
       context: .
@@ -58,6 +58,7 @@ services:
   cache:
     image: memcached:1.4
 
+
 volumes:
   assets:
     external: false
@@ -65,6 +66,7 @@ volumes:
     external: false
   db:
     external: false
+
 
 networks:
   backend:
