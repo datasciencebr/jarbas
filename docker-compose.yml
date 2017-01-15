@@ -3,7 +3,7 @@ services:
   jarbas:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: dockerfiles/prod/Dockerfile
     volumes:
        - "staticfiles:/code/staticfiles"
        - "./:/code"
@@ -26,7 +26,7 @@ services:
   elm:
     build:
       context: .
-      dockerfile: Dockerfile-elm
+      dockerfile: dockerfiles/prod/Dockerfile-elm
     volumes:
       - "./:/code"
     command: [npm, run, watch]
@@ -34,7 +34,7 @@ services:
   nginx:
     build:
       context: .
-      dockerfile: Dockerfile-nginx
+      dockerfile: dockerfiles/prod/Dockerfile-nginx
     volumes:
       - "staticfiles:/opt/jarbas/staticfiles"
     ports:
