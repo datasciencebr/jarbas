@@ -1,18 +1,18 @@
 run.jarbas:
-	docker-compose up -d --build
-	docker-compose run --rm jarbas python manage.py ceapdatasets
-	docker-compose run --rm jarbas python manage.py migrate
+	docker-compose -f docker-compose-dev.yml up -d --build
+	docker exec jarbas_jarbas python manage.py ceapdatasets
+	docker exec jarbas_jarbas python manage.py migrate
 
 
 collectstatic: run.jarbas
-	docker-compose run --rm jarbas python manage.py collectstatic --no-input
+	docker exec jarbas_jarbas python manage.py collectstatic --no-input
 
 seed: run.jarbas
-	docker-compose run --rm jarbas python manage.py reimbursements /tmp/serenata-data/reimbursements.xz
-	docker-compose run --rm jarbas python manage.py companies /tmp/serenata-data/2016-09-03-companies.xz
-	docker-compose run --rm jarbas python manage.py irregularities /tmp/serenata-data/irregularities.xz
+	docker exec jarbas_jarbas python manage.py reimbursements /tmp/serenata-data/reimbursements.xz
+	docker exec jarbas_jarbas python manage.py companies /tmp/serenata-data/2016-09-03-companies.xz
+	docker exec jarbas_jarbas python manage.py irregularities /tmp/serenata-data/irregularities.xz
 
 run.devel: collectstatic
 
 build.elm:
-	docker-compose run elm
+	docker-compose -f docker-compose-dev.yml run elm
