@@ -6,7 +6,7 @@ services:
       dockerfile: dockerfiles/prod/Dockerfile
     volumes:
        - "staticfiles:/code/staticfiles"
-       - "./:/code"
+       - "assets:/code/jarbas/frontend/static"
     environment:
        - SECRET_KEY=lets-rock
        - DATABASE_URL=postgres://jarbas:mysecretpassword@db/jarbas
@@ -28,7 +28,7 @@ services:
       context: .
       dockerfile: dockerfiles/prod/Dockerfile-elm
     volumes:
-      - "./:/code"
+      - "assets:/assets/"
     command: [npm, run, watch]
 
   nginx:
