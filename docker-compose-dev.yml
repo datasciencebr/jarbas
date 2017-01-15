@@ -4,6 +4,7 @@ services:
     build:
       context: .
       dockerfile: dockerfiles/dev/Dockerfile
+    container_name: jarbas_jarbas
     volumes:
        - "staticfiles:/code/staticfiles"
        - "./:/code"
@@ -27,6 +28,7 @@ services:
     build:
       context: .
       dockerfile: dockerfiles/dev/Dockerfile-elm
+    container_name: jarbas_elm
     volumes:
       - "./jarbas:/code/jarbas"
     command: [npm, run, watch]
@@ -35,6 +37,7 @@ services:
     build:
       context: .
       dockerfile: dockerfiles/dev/Dockerfile-nginx
+    container_name: jarbas_nginx
     volumes:
       - "staticfiles:/opt/jarbas/staticfiles"
     ports:
@@ -46,6 +49,7 @@ services:
 
   db:
     image: postgres:9.6
+    container_name: jarbas_db
     environment:
       - POSTGRES_PASSWORD=mysecretpassword
       - POSTGRES_USER=jarbas
@@ -56,6 +60,7 @@ services:
         - "db:/var/lib/postgresql"
 
   cache:
+    container_name: jarbas_cache
     image: memcached:1.4
 
 
