@@ -16,3 +16,6 @@ run.devel: collectstatic
 
 build.elm:
 	docker-compose -f docker-compose-dev.yml run elm
+
+stop.jarbas:
+	docker-compose -f docker-compose-dev.yml down
