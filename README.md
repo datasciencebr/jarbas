@@ -135,23 +135,29 @@ There is also a [tapioca-wrapper](https://github.com/vintasoftware/tapioca-wrapp
 If you have [Docker](https://docs.docker.com/engine/installation/) (with [Docker Compose](https://docs.docker.com/compose/install/)) and make, just run:
 
 ```console
-$ docker-compose up -d --build
-$ docker-compose run --rm jarbas python manage.py migrate
-$ docker-compose run --rm jarbas python manage.py ceapdatasets
+$ docker-compose -f docker-compose-dev.yml up -d --build
+$ docker exec jarbas_jarbas python manage.py migrate
+$ docker exec jarbas_jarbas python manage.py ceapdatasets
 ```
 
 You can access it at [`localhost:80`](http://localhost:80/). However your database starts empty and you still have to collect your static files:
 
 ```console
-$ docker-compose run --rm jarbas python manage.py collectstatic --no-input
-$ docker-compose run --rm jarbas python manage.py reimbursements <path to reimbursements.xz>
-$ docker-compose run --rm jarbas python manage.py irregularities <path to irregularities.xz file>
-$ docker-compose run --rm jarbas python manage.py companies <path to companies.xz>
+$ docker exec jarbas_jarbas python manage.py collectstatic --no-input
+$ docker exec jarbas_jarbas python manage.py reimbursements <path to reimbursements.xz>
+$ docker exec jarbas_jarbas python manage.py irregularities <path to irregularities.xz file>
+$ docker exec jarbas_jarbas python manage.py companies <path to companies.xz>
+```
+
+To stop containers, just run:
+
+```console
+$ docker-compose -f docker-compose-dev.yml down
 ```
 
 You can get the datasets running [Rosie](https://github.com/datasciencebr/rosie) or directly with the [toolbox](https://github.com/datasciencebr/rosie).
 
-Also there are some cleaver shortcuts in the `Makefile` if you like it. 
+Also there are some cleaver shortcuts in the `Makefile` if you like it.
 
 If you have some issues with settings, maybe [this section can be helpful](#settings).
 

@@ -1,0 +1,80 @@
+version: '2'
+services:
+  jarbas:
+    build:
+      context: .
+      dockerfile: dockerfiles/dev/Dockerfile
+    container_name: jarbas_jarbas
+    volumes:
+       - "staticfiles:/code/staticfiles"
+       - "./:/code"
+    environment:
+       - SECRET_KEY=lets-rock
+       - DATABASE_URL=postgres://jarbas:mysecretpassword@db/jarbas
+       - CACHE_BACKEND=django.core.cache.backends.memcached.MemcachedCache
+       - CACHE_LOCATION=cache:11211
+       - DEBUG=True
+    depends_on:
+       - elm
+       - db
+       - cache
+    networks:
+      backend:
+      frontend:
+        aliases:
+          - apps
+
+  elm:
+    build:
+      context: .
+      dockerfile: dockerfiles/dev/Dockerfile-elm
+    container_name: jarbas_elm
+    volumes:
+      - "./jarbas:/code/jarbas"
+    command: [npm, run, watch]
+
+  nginx:
+    build:
+      context: .
+      dockerfile: dockerfiles/dev/Dockerfile-nginx
+    container_name: jarbas_nginx
+    volumes:
+      - "staticfiles:/opt/jarbas/staticfiles"
+    ports:
+      - "80:80"
+    depends_on:
+      - "jarbas"
+    networks:
+      - frontend
+
+  db:
+    image: postgres:9.6
+    container_name: jarbas_db
+    environment:
+      - POSTGRES_PASSWORD=mysecretpassword
+      - POSTGRES_USER=jarbas
+      - POSTGRES_DB=jarbas
+    networks:
+        - backend
+    volumes:
+        - "db:/var/lib/postgresql"
+
+  cache:
+    container_name: jarbas_cache
+    image: memcached:1.4
+
+
+volumes:
+  assets:
+    external: false
+  staticfiles:
+    external: false
+  db:
+    external: false
+
+
+networks:
+  backend:
+    driver: bridge
+  frontend:
+    driver: bridge
