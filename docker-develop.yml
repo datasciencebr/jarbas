@@ -1,0 +1,12 @@
+version: '2'
+services:
+
+  jarbas:
+    volumes:
+      - "./:/code"
+
+  elm:
+    volumes:
+      - "./:/code"
+      - "/code/node_modules"
+    command: [yarn, watch]

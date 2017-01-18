@@ -31,7 +31,6 @@ services:
     volumes:
       - "assets:/code/jarbas/frontend/static"
       - "staticfiles:/code/jarbas/frontend/static"
-    command: [yarn, watch]
 
   nginx:
     build:
