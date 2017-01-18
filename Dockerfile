@@ -6,9 +6,10 @@ RUN apt-get update && apt-get install -y \
     postgresql \
     postgresql-contrib
 
+RUN python -m pip install -U pip
+
 COPY requirements.txt /requirements.txt
 
-RUN python -m pip install -U pip
 RUN python -m pip install -r requirements.txt
 
 COPY ./ /code
