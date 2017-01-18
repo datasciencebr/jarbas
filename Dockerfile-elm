@@ -1,9 +1,10 @@
 FROM node:6.9.1
 
+RUN npm install -g yarn
+
 COPY ./ /code
 WORKDIR /code
 
-RUN npm install -g yarn
 RUN yarn
 
 CMD yarn assets
