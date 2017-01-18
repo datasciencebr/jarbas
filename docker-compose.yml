@@ -6,7 +6,6 @@ services:
       context: .
       dockerfile: Dockerfile
     volumes:
-      - "./:/code"
       - "staticfiles:/code/staticfiles"
       - "assets:/code/jarbas/frontend/static"
     environment:
@@ -30,9 +29,8 @@ services:
       context: .
       dockerfile: Dockerfile-elm
     volumes:
-      - "./:/code"
-      - "/code/node_modules"
       - "assets:/code/jarbas/frontend/static"
+      - "staticfiles:/code/jarbas/frontend/static"
     command: [yarn, watch]
 
   nginx:
