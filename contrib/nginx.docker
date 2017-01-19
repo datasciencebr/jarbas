@@ -8,7 +8,7 @@ server {
     access_log on;
 
     location /static/ {
-        alias /opt/jarbas/staticfiles/;
+        alias /code/staticfiles/;
     }
 
     location / {
