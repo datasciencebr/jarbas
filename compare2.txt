@@ -1,0 +1,1 @@
+applicant_id,year,document_id,suspicious_traveled_speed_day,meal_price_outlier,over_monthly_subquota_limit
