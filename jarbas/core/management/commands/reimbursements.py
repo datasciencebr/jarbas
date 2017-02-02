@@ -15,8 +15,13 @@ class Command(LoadCommand):
             help='Number of documents to be created at a time (default: 10000)'
         )
 
+        parser.add_argument(
+                '--irregularities-path', '-i', dest='irregularities_path',
+                help='Path to irregularities dataset')
+
     def handle(self, *args, **options):
         self.path = options['dataset']
+        self.irregularities_path = options['irregularities_path']
         self.count = Reimbursement.objects.count()
         print('Starting with {:,} reimbursements'.format(self.count))
 
@@ -30,7 +35,10 @@ class Command(LoadCommand):
     @property
     def reimbursements(self):
         """Returns a Generator with a Reimbursement object for each row."""
-        with lzma.open(self.path, mode='rt') as file_handler:
+        with lzma.open(self.path, mode='rt') as file_handler, lzma.open(self.irregularities_path, 
+                        mode='rt') as irregularities:
+            print(irregularities)
+            exit()
             for index, row in pandas.read_csv(file_handler, dtype=object).fillna('').iterrows():
                 yield Reimbursement(**self.serialize(row.to_dict()))
 
