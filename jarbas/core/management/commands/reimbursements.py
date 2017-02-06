@@ -13,7 +13,7 @@ class Command(LoadCommand):
         parser.add_argument(
             '--batch-size', '-b', dest='batch_size', type=int, default=10000,
             help='Number of documents to be created at a time (default: 10000)'
-        )
+            )
 
         parser.add_argument(
             '--irregularities-path', '-i', dest='irregularities_path',
@@ -72,7 +72,7 @@ class Command(LoadCommand):
         rename = (
             ('subquota_number', 'subquota_id'),
             ('reimbursement_value_total', 'total_reimbursement_value')
-        )
+            )
         for old, new in rename:
             reimbursement[new] = reimbursement[old]
             del reimbursement[old]
