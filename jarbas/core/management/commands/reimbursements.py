@@ -16,7 +16,7 @@ class Command(LoadCommand):
             )
 
         parser.add_argument(
-            '--irregularities-path', '-i', dest='irregularities_path',
+            dest='irregularities_path',
             help='Path to irregularities dataset')
 
     def handle(self, *args, **options):
