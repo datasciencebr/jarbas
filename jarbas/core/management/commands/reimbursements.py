@@ -1,4 +1,3 @@
-import lzma
 import pandas as pd
 
 from jarbas.core.management.commands import LoadCommand
