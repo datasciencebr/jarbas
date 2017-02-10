@@ -231,8 +231,7 @@ $ python manage.py migrate
 Now you can load the data from our datasets and get some other data as static files:
 
 ```
-$ python manage.py reimbursements <path to reimbursements.xz>
-$ python manage.py irregularities <path to irregularities.xz file>
+$ python manage.py reimbursements <path to reimbursements.xz> <path to irregularities.xz>
 $ python manage.py companies <path to companies.xz>
 $ python manage.py ceapdatasets
 ```
