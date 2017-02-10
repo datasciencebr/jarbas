@@ -119,10 +119,14 @@ class TestConventionMethods(TestCommand):
     @patch('jarbas.core.management.commands.reimbursements.Command.print_count')
     def test_handler_without_options(self, print_count, bulk_create_by, reimbursements, print_):
         reimbursements.return_value = (1, 2, 3)
-        self.command.handle(dataset='reimbursements.xz', batch_size=42)
+        self.command.handle(dataset='reimbursements.xz', batch_size=42,
+                            irregularities_path='irregularities.xz')
         print_.assert_called_once_with('Starting with 0 reimbursements')
         bulk_create_by.assert_called_once_with(reimbursements, 42)
-        self.assertEqual('reimbursements.xz', self.command.path)
+        self.assertEqual('reimbursements.xz',
+                         self.command.reimbursements_path)
+        self.assertEqual('irregularities.xz',
+                         self.command.irregularities_path)
 
     @patch('jarbas.core.management.commands.reimbursements.print')
     @patch('jarbas.core.management.commands.reimbursements.Command.reimbursements')
@@ -130,7 +134,8 @@ class TestConventionMethods(TestCommand):
     @patch('jarbas.core.management.commands.reimbursements.Command.drop_all')
     @patch('jarbas.core.management.commands.reimbursements.Command.print_count')
     def test_handler_with_options(self, print_count, drop_all, bulk_create_by, reimbursements, print_):
-        self.command.handle(dataset='reimbursements.xz', batch_size=1, drop=True)
+        self.command.handle(dataset='reimbursements.xz', batch_size=1,
+                            irregularities_path='irregularities.xz', drop=True)
         print_.assert_called_once_with('Starting with 0 reimbursements')
         drop_all.assert_called_once_with(Reimbursement)
         bulk_create_by.assert_called_once_with(reimbursements, 1)
