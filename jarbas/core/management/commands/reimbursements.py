@@ -66,10 +66,7 @@ class Command(LoadCommand):
                 suspicions[key] = self.bool(reimbursement[key])
                 del reimbursement[key]
         
-        if not suspicions:
-            suspicions = None
-
-        reimbursement['suspicions'] = suspicions
+        reimbursement['suspicions'] = suspicions or None
 
         rename = (
             ('subquota_number', 'subquota_id'),
