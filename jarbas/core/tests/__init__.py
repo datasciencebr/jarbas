@@ -72,5 +72,7 @@ sample_company_data = dict(
     phone='',
     last_updated=timezone.now(),
     latitude=None,
-    longitude=None
+    longitude=None,
+    main_activity=[sample_activity_data],
+    secondary_activity=[sample_activity_data]
 )

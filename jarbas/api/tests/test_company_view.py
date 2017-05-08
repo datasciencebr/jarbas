@@ -4,16 +4,14 @@ import json
 from django.shortcuts import resolve_url
 from django.test import TestCase
 
-from jarbas.core.models import Activity, Company
-from jarbas.core.tests import sample_activity_data, sample_company_data
+from jarbas.core.models import Company
+from jarbas.core.tests import sample_company_data
 
 
 class TestApi(TestCase):
 
     def setUp(self):
-        activity = Activity.objects.create(**sample_activity_data)
         self.company = Company.objects.create(**sample_company_data)
-        self.company.main_activity.add(activity)
         self.company.save()
         cnpj = re.compile(r'\D').sub('', self.company.cnpj)
         self.url = resolve_url('api:company-detail', cnpj)

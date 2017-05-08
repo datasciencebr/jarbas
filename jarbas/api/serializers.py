@@ -134,9 +134,6 @@ class ActivitySerializer(serializers.ModelSerializer):
 
 class CompanySerializer(serializers.ModelSerializer):
 
-    main_activity = ActivitySerializer(many=True, read_only=True)
-    secondary_activity = ActivitySerializer(many=True, read_only=True)
-
     class Meta:
         model = Company
         exclude = ('id',)

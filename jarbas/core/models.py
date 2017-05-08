@@ -143,8 +143,8 @@ class Company(models.Model):
     name = models.CharField('Name', blank=True, null=True, max_length=144)
     type = models.CharField('Type', blank=True, null=True, max_length=6)
 
-    main_activity = models.ManyToManyField(Activity, related_name='main')
-    secondary_activity = models.ManyToManyField(Activity, related_name='secondary')
+    main_activity = JSONField('main_activity', blank=True, null=True)
+    secondary_activity = JSONField('secondary_activity', blank=True, null=True)
 
     status = models.CharField('Status', blank=True, null=True, max_length=5)
     situation = models.CharField('Situation', blank=True, null=True, max_length=8)
@@ -153,6 +153,7 @@ class Company(models.Model):
     special_situation = models.CharField('Special situation', blank=True, null=True, max_length=51)
     special_situation_date = models.DateField('Special situation date', blank=True, null=True)
     responsible_federative_entity = models.CharField('Responsible federative entity', blank=True, null=True, max_length=38)
+    message = models.CharField('Message', max_length=140, blank=True, null=True)
 
     address = models.CharField('Address', blank=True, null=True, max_length=64)
     number = models.CharField('Number', blank=True, null=True, max_length=6)
