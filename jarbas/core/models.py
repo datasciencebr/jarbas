@@ -134,6 +134,9 @@ class Activity(models.Model):
 
 
 class Company(models.Model):
+    
+    main_activity = JSONField('main_activity', blank=True, null=True)
+    secondary_activity = JSONField('secondary_activity', blank=True, null=True)
 
     cnpj = models.CharField('CNPJ', db_index=True, max_length=18)
     opening = models.DateField('Opening date', blank=True, null=True)
@@ -142,9 +145,6 @@ class Company(models.Model):
     trade_name = models.CharField('Trade name', blank=True, null=True, max_length=55)
     name = models.CharField('Name', blank=True, null=True, max_length=144)
     type = models.CharField('Type', blank=True, null=True, max_length=6)
-
-    main_activity = models.ManyToManyField(Activity, related_name='main')
-    secondary_activity = models.ManyToManyField(Activity, related_name='secondary')
 
     status = models.CharField('Status', blank=True, null=True, max_length=5)
     situation = models.CharField('Situation', blank=True, null=True, max_length=8)

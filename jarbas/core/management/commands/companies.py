@@ -35,11 +35,14 @@ class Command(LoadCommand):
                 main, secondary = self.save_activities(row)
 
                 filtered = {k: v for k, v in row.items() if k in keys}
+                filtered['main_activity'] = [main]
+                
+                if len(secondary) == 0:
+                    filtered['secondary_activity'] = []
+                else:
+                    filtered['secondary_activity'] = [secondary]
                 obj = Company.objects.create(**self.serialize(filtered))
-                for activity in main:
-                    obj.main_activity.add(activity)
-                for activity in secondary:
-                    obj.secondary_activity.add(activity)
+                
                 obj.save()
 
                 self.count += 1
@@ -50,18 +53,15 @@ class Command(LoadCommand):
             code=row['main_activity_code'],
             description=row['main_activity']
         )
-        main = Activity.objects.update_or_create(**data, defaults=data)[0]
 
-        secondaries = list()
+        secondaries = {}
         for num in range(1, 100):
             code = row.get('secondary_activity_{}_code'.format(num))
             description = row.get('secondary_activity_{}'.format(num))
             if code and description:
-                d = dict(code=code, description=description)
-                obj = Activity.objects.update_or_create(**d, defaults=d)[0]
-                secondaries.append(obj)
+                secondaries[code] = description
 
-        return [main], secondaries
+        return data, secondaries
 
     def serialize(self, row):
         row['email'] = self.to_email(row['email'])
