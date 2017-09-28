@@ -1,9 +1,76 @@
+from io import StringIO
 from datetime import date
 from random import randrange
 
-from django.utils import timezone
+from unittest.mock import Mock, call
 
-from jarbas.core.models import Tweet
+from django.utils import timezone
+from django.test import TestCase as DjangoTestCase
+
+from jarbas.core.models import Reimbursement, Tweet
+
+
+class TestCase(DjangoTestCase):
+
+    def serializer(self, command, input, expected):
+        serialized = command.serialize(input)
+        self.assertEqual(serialized, expected)
+
+    def main(self, command, update, schedule_update, custom_method):
+        custom_method.return_value = (range(21), range(21, 43))
+        command.main()
+        update.assert_has_calls([call()] * 2)
+        schedule_update.assert_has_calls(call(i) for i in range(42))
+
+    def schedule_update_non_existing_record(self, command, content, get):
+        get.side_effect = Reimbursement.DoesNotExist
+        command.queue = []
+        command.schedule_update(content)
+        get.assert_called_once_with(document_id=42)
+        self.assertEqual([], command.queue)
+
+    def update(self, command, fields, print_, bulk_update):
+        command.count = 40
+        command.queue = list(range(2))
+        command.update()
+        bulk_update.assert_called_with([0, 1], update_fields=fields)
+        print_.assert_called_with('42 reimbursements updated.', end='\r')
+        self.assertEqual(42, command.count)
+
+    def handler_with_options(self, command, print_, exits, main, custom_command):
+        command.handle(dataset=self.file_name, batch_size=42)
+        main.assert_called_once_with()
+        print_.assert_called_once_with('0 reimbursements updated.')
+        self.assertEqual(command.path, self.file_name)
+        self.assertEqual(command.batch_size, 42)
+
+    def handler_without_options(self, command, print_, exits, main, custom_command):
+        command.handle(dataset=self.file_name, batch_size=4096)
+        main.assert_called_once_with()
+        print_.assert_called_once_with('0 reimbursements updated.')
+        self.assertEqual(command.path, self.file_name)
+        self.assertEqual(command.batch_size, 4096)
+
+    def handler_with_non_existing_file(self, command, exists, update, custom_command):
+        exists.return_value = False
+        with self.assertRaises(FileNotFoundError):
+            command.handle(dataset='suspicions.xz', batch_size=4096)
+        update.assert_not_called()
+
+    def new_command(self, command, custom_command, serialize, rows, lzma, print_):
+        serialize.return_value = '.'
+        lzma.return_value = StringIO()
+        rows.return_value = range(42)
+        command.batch_size = 10
+        command.path = self.file_name
+        expected = [['.'] * 10, ['.'] * 10, ['.'] * 10, ['.'] * 10, ['.'] * 2]
+        self.assertEqual(expected, list(custom_command))
+        self.assertEqual(42, serialize.call_count)
+
+    def add_arguments(self, command):
+        mock = Mock()
+        command.add_arguments(mock)
+        self.assertEqual(2, mock.add_argument.call_count)
 
 
 suspicions = {

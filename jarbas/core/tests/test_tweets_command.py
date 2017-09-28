@@ -2,12 +2,11 @@ from collections import namedtuple
 from itertools import permutations
 from unittest.mock import MagicMock, PropertyMock, patch
 
-from django.test import TestCase
 from mixer.backend.django import mixer
 
 from jarbas.core.models import Reimbursement, Tweet
 from jarbas.core.management.commands.tweets import Command
-from jarbas.core.tests import random_tweet_status
+from jarbas.core.tests import TestCase, random_tweet_status
 
 
 KEYS = (

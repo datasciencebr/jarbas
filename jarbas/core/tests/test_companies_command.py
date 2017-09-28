@@ -2,17 +2,16 @@ from datetime import date
 from io import StringIO
 from unittest.mock import patch
 
-from django.test import TestCase
-
 from jarbas.core.management.commands.companies import Command
 from jarbas.core.models import Activity, Company
-from jarbas.core.tests import sample_company_data
+from jarbas.core.tests import TestCase, sample_company_data
 
 
 class TestCommand(TestCase):
 
     def setUp(self):
         self.command = Command()
+        self.file_name = 'companies.xz'
 
 
 class TestSerializer(TestCommand):
@@ -23,7 +22,7 @@ class TestSerializer(TestCommand):
         self.assertEqual(self.command.to_email('jane@example.com'), expected)
 
     def test_serializer(self):
-        company = {
+        input = {
             'email': 'ahoy',
             'opening': '31/12/1969',
             'situation_date': '31/12/1969',
@@ -39,7 +38,7 @@ class TestSerializer(TestCommand):
             'latitude': 3.1415,
             'longitude': -42.0
         }
-        self.assertEqual(self.command.serialize(company), expected)
+        self.serializer(self.command, input, expected)
 
 
 class TestCreate(TestCommand):
@@ -83,25 +82,25 @@ class TestCreate(TestCommand):
 class TestConventionMethods(TestCommand):
 
     @patch('jarbas.core.management.commands.companies.print')
-    @patch('jarbas.core.management.commands.companies.LoadCommand.drop_all')
-    @patch('jarbas.core.management.commands.companies.Command.save_companies')
-    @patch('jarbas.core.management.commands.companies.Command.print_count')
-    def test_handler_without_options(self, print_count, save_companies, drop_all, print_):
-        print_count.return_value = 0
-        self.command.handle(dataset='companies.xz')
-        print_.assert_called_with('Starting with 0 companies')
-        self.assertEqual(1, save_companies.call_count)
-        self.assertEqual(1, print_count.call_count)
-        self.assertEqual('companies.xz', self.command.path)
-        drop_all.assert_not_called()
-
-    @patch('jarbas.core.management.commands.companies.print')
     @patch('jarbas.core.management.commands.companies.Command.drop_all')
     @patch('jarbas.core.management.commands.companies.Command.save_companies')
     @patch('jarbas.core.management.commands.companies.Command.print_count')
     def test_handler_with_options(self, print_count, save_companies, drop_all, print_):
         print_count.return_value = 0
-        self.command.handle(dataset='companies.xz', drop=True)
+        self.command.handle(dataset=self.file_name, drop=True)
         print_.assert_called_with('Starting with 0 companies')
         self.assertEqual(2, drop_all.call_count)
         self.assertEqual(1, save_companies.call_count)
+
+    @patch('jarbas.core.management.commands.companies.print')
+    @patch('jarbas.core.management.commands.companies.LoadCommand.drop_all')
+    @patch('jarbas.core.management.commands.companies.Command.save_companies')
+    @patch('jarbas.core.management.commands.companies.Command.print_count')
+    def test_handler_without_options(self, print_count, save_companies, drop_all, print_):
+        print_count.return_value = 0
+        self.command.handle(dataset=self.file_name)
+        print_.assert_called_with('Starting with 0 companies')
+        self.assertEqual(1, save_companies.call_count)
+        self.assertEqual(1, print_count.call_count)
+        self.assertEqual(self.file_name, self.command.path)
+        drop_all.assert_not_called()

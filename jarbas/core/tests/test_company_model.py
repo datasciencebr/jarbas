@@ -1,4 +1,5 @@
 from django.test import TestCase
+
 from jarbas.core.models import Activity, Company
 from jarbas.core.tests import sample_activity_data, sample_company_data
 
