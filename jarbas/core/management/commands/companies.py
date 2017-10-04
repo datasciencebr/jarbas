@@ -1,6 +1,6 @@
 import csv
 import lzma
-
+from rows.fields import EmailField,DatetimeField,FloatField
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 
@@ -64,16 +64,16 @@ class Command(LoadCommand):
         return [main], secondaries
 
     def serialize(self, row):
-        row['email'] = self.to_email(row['email'])
-
+        row['email'] = EmailField.deserialize(row['email'])
         dates = ('opening', 'situation_date', 'special_situation_date')
         for key in dates:
-            row[key] = self.to_date(row[key])
+            row[key] = DatetimeField.deserialize(row[key])
+
 
         decimals = ('latitude', 'longitude')
         for key in decimals:
-            row[key] = self.to_number(row[key])
-
+            #row[key] = self.to_number(row[key])
+            row[key] = FloatField.deserialize(row[key])
         return row
 
     @staticmethod
