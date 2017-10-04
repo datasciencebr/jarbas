@@ -1,7 +1,6 @@
 import csv
 import lzma
 from rows.fields import EmailField,DatetimeField,FloatField
-import rows
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 
