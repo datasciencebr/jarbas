@@ -1,5 +1,7 @@
 import csv
 import lzma
+import rows
+
 from rows.fields import EmailField,DatetimeField,FloatField
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
@@ -31,7 +33,7 @@ class Command(LoadCommand):
         skip = ('main_activity', 'secondary_activity')
         keys = tuple(f.name for f in Company._meta.fields if f not in skip)
         with lzma.open(self.path, mode='rt', encoding='utf-8') as file_handler:
-            for row in csv.DictReader(file_handler):
+            for row in map(lambda x: x._asdict(),[file_rows for file_rows in rows.import_from_csv(filename_or_fobj=file_handler) ]):
                 main, secondary = self.save_activities(row)
 
                 filtered = {k: v for k, v in row.items() if k in keys}
