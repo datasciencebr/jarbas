@@ -80,7 +80,6 @@ class Command(LoadCommand):
             row[key] = InputDateField().deserialize(row[key])
         decimals = ('latitude', 'longitude')
         for key in decimals:
-            #row[key] = self.to_number(row[key])
             row[key] = rows.fields.FloatField().deserialize(row[key])
         return row
 
@@ -95,4 +94,4 @@ class Command(LoadCommand):
 
 
 class InputDateField(rows.fields.DateField):
-    INPUT_FORMAT = '%d-%m-%Y'
+    INPUT_FORMAT = '%d/%m/%Y'
