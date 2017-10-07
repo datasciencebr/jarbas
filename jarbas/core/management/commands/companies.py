@@ -1,12 +1,21 @@
 import lzma
 import rows
-import rows.fields
-
-from django.core.exceptions import ValidationError
-from django.core.validators import validate_email
 
 from jarbas.core.management.commands import LoadCommand
 from jarbas.core.models import Activity, Company
+
+
+class CompaniesDate(rows.fields.DateField):
+    INPUT_FORMAT = '%d/%m/%Y'
+
+companies_csv_field_types = {
+            'email': rows.fields.EmailField,
+            'opening': CompaniesDate,
+            'situation_date': CompaniesDate,
+            'special_situation_date': CompaniesDate,
+            'latitude': rows.fields.FloatField,
+            'longitude': rows.fields.FloatField
+        }
 
 
 class Command(LoadCommand):
@@ -24,8 +33,6 @@ class Command(LoadCommand):
 
         self.save_companies()
 
-
-
     def save_companies(self):
         """
         Receives path to the dataset file and create a Company object for
@@ -34,11 +41,12 @@ class Command(LoadCommand):
         skip = ('main_activity', 'secondary_activity')
         keys = tuple(f.name for f in Company._meta.fields if f not in skip)
         with lzma.open(self.path, mode='rt', encoding='utf-8') as file_handler:
-            for row in map(self.transform,rows.import_from_csv(filename_or_fobj=file_handler)):
+            for row in rows.import_from_csv(file_handler, force_types=companies_csv_field_types):
+                row = row._asdict()
                 main, secondary = self.save_activities(row)
 
                 filtered = {k: v for k, v in row.items() if k in keys}
-                obj = Company.objects.create(**self.serialize(filtered))
+                obj = Company.objects.create(**filtered)
                 for activity in main:
                     obj.main_activity.add(activity)
                 for activity in secondary:
@@ -47,12 +55,6 @@ class Command(LoadCommand):
 
                 self.count += 1
                 self.print_count(Company, count=self.count)
-
-    @staticmethod
-    def transform(row):
-        return row._asdict()
-
-
 
     def save_activities(self, row):
         data = dict(
@@ -71,27 +73,3 @@ class Command(LoadCommand):
                 secondaries.append(obj)
 
         return [main], secondaries
-
-
-    def serialize(self, row):
-        row['email'] = self.to_email(row['email'])
-        dates = ('opening', 'situation_date', 'special_situation_date')
-        for key in dates:
-            row[key] = InputDateField().deserialize(row[key])
-        decimals = ('latitude', 'longitude')
-        for key in decimals:
-            row[key] = rows.fields.FloatField().deserialize(row[key])
-        return row
-
-    @staticmethod
-    def to_email(email):
-        try:
-            validate_email(email)
-            return email
-
-        except ValidationError:
-            return None
-
-
-class InputDateField(rows.fields.DateField):
-    INPUT_FORMAT = '%d/%m/%Y'
