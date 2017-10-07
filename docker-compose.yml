@@ -1,67 +1,66 @@
-version: '2'
+version: "3"
 services:
+  cache:
+    image: memcached:1.5.0-alpine
+
+  elm:
+    image: datasciencebr/jarbas-frontend
+    volumes:
+      - .:/code
+      - ./assets:/code/jarbas/frontend/static
+    command: [yarn, watch]
+
   jarbas:
     image: datasciencebr/jarbas-backend
     volumes:
-       - "assets:/code/staticfiles"
-       - "./:/code"
-       - ".env:/code/.env"
+      - ./assets:/code/staticfiles
+      - .:/code
+      - ./.env:/code/.env
     environment:
-       - SECRET_KEY=lets-rock
-       - DATABASE_URL=postgres://jarbas:mysecretpassword@db/jarbas
-       - CACHE_BACKEND=django.core.cache.backends.memcached.MemcachedCache
-       - CACHE_LOCATION=cache:11211
-       - DEBUG=True
-       - ALLOWED_HOSTS=localhost,127.0.0.1
-       - AMAZON_S3_BUCKET=serenata-de-amor-data
-       - AMAZON_S3_REGION=s3-sa-east-1
-       - AMAZON_S3_CEAPTRANSLATION_DATE=2016-08-08
-       - GOOGLE_STREET_VIEW_API_KEY
+      - ALLOWED_HOSTS=localhost,127.0.0.1
+      - AMAZON_S3_BUCKET=serenata-de-amor-data
+      - AMAZON_S3_CEAPTRANSLATION_DATE=2016-08-08
+      - AMAZON_S3_REGION=s3-sa-east-1
+      - CACHE_BACKEND=django.core.cache.backends.memcached.MemcachedCache
+      - CACHE_LOCATION=cache:11211
+      - DATABASE_URL=postgres://jarbas:mysecretpassword@db/jarbas
+      - DEBUG=True
+      - GOOGLE_STREET_VIEW_API_KEY
+      - SECRET_KEY=lets-rock
 
     depends_on:
-       - elm
-       - db
-       - cache
+      - elm
+      - db
+      - cache
     networks:
       backend:
       frontend:
         aliases:
           - apps
 
-  elm:
-    image: datasciencebr/jarbas-frontend
-    volumes:
-      - "./:/code"
-      - "/code/node_modules"
-      - "assets:/code/jarbas/frontend/static"
-    command: [yarn, watch]
-
   nginx:
     image: datasciencebr/jarbas-server
     volumes:
-      - "assets:/opt/jarbas/staticfiles"
+      - ./assets:/opt/jarbas/staticfiles
     ports:
-      - "8000:80"
+      - 8000:80
     depends_on:
-      - "jarbas"
+      - jarbas
     networks:
       - frontend
 
   db:
-    image: postgres:9.6
+    image: postgres:9.6.4
     environment:
       - POSTGRES_PASSWORD=mysecretpassword
       - POSTGRES_USER=jarbas
       - POSTGRES_DB=jarbas
     ports:
-      - "5432:5432"
+      - 5432:5432
     networks:
-        - backend
+      - backend
     volumes:
-        - "db:/var/lib/postgresql"
-
-  cache:
-    image: memcached:1.4
+      - ./db:/var/lib/postgresql
 
 volumes:
   assets:
