@@ -52,6 +52,8 @@ class Command(LoadCommand):
     def transform(row):
         return row._asdict()
 
+
+
     def save_activities(self, row):
         data = dict(
             code=row['main_activity_code'],
@@ -70,25 +72,12 @@ class Command(LoadCommand):
 
         return [main], secondaries
 
-    class MyDateField(rows.fields.DateField):
-        INPUT_FORMAT = '%Y-%m-%dT%H:%M:%S'
 
-    value = MyDateField.deserialize('2014-02-16T00:00:00')
-    company = {'email': 'ahoy',
- 'latitude': '3.1415',
- 'longitude': '-42',
- 'opening': '31/12/1969',
- 'situation_date': '31/12/1969',
- 'special_situation_date': '31/12/1969'}
-
-    #lastthoughts:load test message as dict,then create class that extends the field time to be convert using class newclass(extended class).deseralize(value to deserialized).When company is imported is field type inferred
     def serialize(self, row):
-        row['email'] = rows.fields.EmailField().deserialize(row['email'])
+        row['email'] = self.to_email(row['email'])
         dates = ('opening', 'situation_date', 'special_situation_date')
         for key in dates:
-            row[key] = rows.fields.DatetimeField().deserialize(row[key])
-
-
+            row[key] = InputDateField().deserialize(row[key])
         decimals = ('latitude', 'longitude')
         for key in decimals:
             #row[key] = self.to_number(row[key])
@@ -103,3 +92,7 @@ class Command(LoadCommand):
 
         except ValidationError:
             return None
+
+
+class InputDateField(rows.fields.DateField):
+    INPUT_FORMAT = '%d-%m-%Y'
