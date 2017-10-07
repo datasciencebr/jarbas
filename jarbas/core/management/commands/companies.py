@@ -1,8 +1,7 @@
-import csv
 import lzma
 import rows
+import rows.fields
 
-from rows.fields import EmailField,DatetimeField,FloatField
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 
@@ -25,6 +24,8 @@ class Command(LoadCommand):
 
         self.save_companies()
 
+
+
     def save_companies(self):
         """
         Receives path to the dataset file and create a Company object for
@@ -33,7 +34,7 @@ class Command(LoadCommand):
         skip = ('main_activity', 'secondary_activity')
         keys = tuple(f.name for f in Company._meta.fields if f not in skip)
         with lzma.open(self.path, mode='rt', encoding='utf-8') as file_handler:
-            for row in map(lambda x: x._asdict(),[file_rows for file_rows in rows.import_from_csv(filename_or_fobj=file_handler) ]):
+            for row in map(self.transform,rows.import_from_csv(filename_or_fobj=file_handler)):
                 main, secondary = self.save_activities(row)
 
                 filtered = {k: v for k, v in row.items() if k in keys}
@@ -46,6 +47,10 @@ class Command(LoadCommand):
 
                 self.count += 1
                 self.print_count(Company, count=self.count)
+
+    @staticmethod
+    def transform(row):
+        return row._asdict()
 
     def save_activities(self, row):
         data = dict(
@@ -65,17 +70,29 @@ class Command(LoadCommand):
 
         return [main], secondaries
 
+    class MyDateField(rows.fields.DateField):
+        INPUT_FORMAT = '%Y-%m-%dT%H:%M:%S'
+
+    value = MyDateField.deserialize('2014-02-16T00:00:00')
+    company = {'email': 'ahoy',
+ 'latitude': '3.1415',
+ 'longitude': '-42',
+ 'opening': '31/12/1969',
+ 'situation_date': '31/12/1969',
+ 'special_situation_date': '31/12/1969'}
+
+    #lastthoughts:load test message as dict,then create class that extends the field time to be convert using class newclass(extended class).deseralize(value to deserialized).When company is imported is field type inferred
     def serialize(self, row):
-        row['email'] = EmailField.deserialize(row['email'])
+        row['email'] = rows.fields.EmailField().deserialize(row['email'])
         dates = ('opening', 'situation_date', 'special_situation_date')
         for key in dates:
-            row[key] = DatetimeField.deserialize(row[key])
+            row[key] = rows.fields.DatetimeField().deserialize(row[key])
 
 
         decimals = ('latitude', 'longitude')
         for key in decimals:
             #row[key] = self.to_number(row[key])
-            row[key] = FloatField.deserialize(row[key])
+            row[key] = rows.fields.FloatField().deserialize(row[key])
         return row
 
     @staticmethod
