@@ -165,9 +165,9 @@ $ docker-compose run --rm jarbas python manage.py companies contrib/sample-data/
 $ docker-compose run --rm jarbas python manage.py suspicions contrib/sample-data/suspicions_sample.xz
 ```
 
-You can get the datasets running [Rosie](https://github.com/datasciencebr/rosie) or directly with the [toolbox](https://github.com/datasciencebr/rosie).
+You can get the datasets running [Rosie](https://github.com/datasciencebr/rosie) or directly with the [toolbox](https://github.com/datasciencebr/serenata-toolbox).
 
-To add a fresh new `reimbursements.xz` brewed by [Rosie](https://github.com/datasciencebr/rosie) or made with our [toolbox](https://github.com/datasciencebr/rosie), you just need to have this file **inside project folder** and give the path at the end of the command, as bellow:
+To add a fresh new `reimbursements.xz` brewed by [Rosie](https://github.com/datasciencebr/rosie) or made with our [toolbox](https://github.com/datasciencebr/serenata-toolbox), you just need to have this file **inside project folder** and give the path at the end of the command, as bellow:
 
 ```console
 $ docker-compose run --rm jarbas python manage.py reimbursements path/to/my/fresh_new_reimbursements.xz
