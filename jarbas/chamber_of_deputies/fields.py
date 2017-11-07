@@ -1,5 +1,3 @@
-from datetime import date
-
 from rows import fields
 
 
@@ -15,11 +13,11 @@ class IntegerField(fields.IntegerField):
 
 
 class DateAsStringField(fields.DateField):
-    INPUT_FORMAT = '%Y-%m-%dT%H:%M:%S'
+    INPUT_FORMAT = '%Y-%m-%d'  # value will be cropped to fit
     OUTPUT_FORMAT = '%Y-%m-%d'
 
     @classmethod
     def deserialize(cls, value, *args, **kwargs):
-        value = super(DateAsStringField, cls).deserialize(value)
+        value = super(DateAsStringField, cls).deserialize(value[:10])
         if value:  # useful when serializing it to Celery
             return value.strftime(cls.OUTPUT_FORMAT)
