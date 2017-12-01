@@ -5,7 +5,7 @@ services:
     image: datasciencebr/jarbas-backend
     environment:
        - DATABASE_URL=postgres://jarbas:mysecretpassword@postgres/jarbas
-       - ALLOWED_HOSTS=localhost,127.0.0.1
+       - ALLOWED_HOSTS=jarbas.serenatadeamor.org,localhost,127.0.0.1
        - AMAZON_S3_BUCKET=serenata-de-amor-data
        - AMAZON_S3_REGION=s3-sa-east-1
        - AMAZON_S3_CEAPTRANSLATION_DATE=2016-08-08

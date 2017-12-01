@@ -1,11 +1,74 @@
 version: '3'
 services:
+  nginx:
+    image: nginx
+    labels:
+      com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy: "true"
+    container_name: ${NGINX_WEB}
+    restart: always
+    ports:
+      - "${IP}:80:80"
+      - "${IP}:443:443"
+    depends_on:
+      - django
+    volumes:
+      - assets:/code/staticfiles
+#      - proxy-conf:/etc/nginx/conf.d
+#      - proxy-vhost:/etc/nginx/vhost.d
+#      - proxy-public:/usr/share/nginx/html
+#      - proxy-certs:/etc/nginx/certs:ro
+      - ${NGINX_FILES_PATH}/conf.d:/etc/nginx/conf.d
+      - ${NGINX_FILES_PATH}/vhost.d:/etc/nginx/vhost.d
+      - ${NGINX_FILES_PATH}/html:/usr/share/nginx/html
+      - ${NGINX_FILES_PATH}/certs:/etc/nginx/certs:ro
+
+  nginx-gen:
+    image: jwilder/docker-gen
+    labels:
+      com.github.jrcs.letsencrypt_nginx_proxy_companion.docker_gen: "true"
+    command: -notify-sighup ${NGINX_WEB} -watch -wait 5s:30s /etc/docker-gen/templates/nginx.tmpl /etc/nginx/conf.d/default.conf
+    container_name: ${DOCKER_GEN}
+    restart: always
+    volumes:
+#      - proxy-conf:/etc/nginx/conf.d
+#      - proxy-vhost:/etc/nginx/vhost.d
+#      - proxy-public:/usr/share/nginx/html
+#      - proxy-certs:/etc/nginx/certs:ro
+      - ${NGINX_FILES_PATH}/conf.d:/etc/nginx/conf.d
+      - ${NGINX_FILES_PATH}/vhost.d:/etc/nginx/vhost.d
+      - ${NGINX_FILES_PATH}/html:/usr/share/nginx/html
+      - ${NGINX_FILES_PATH}/certs:/etc/nginx/certs:ro
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - ./nginx.tmpl:/etc/docker-gen/templates/nginx.tmpl:ro
+      
+  nginx-letsencrypt:
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    container_name: ${LETS_ENCRYPT}
+    restart: always
+    volumes:
+#      - proxy-conf:/etc/nginx/conf.d
+#      - proxy-vhost:/etc/nginx/vhost.d
+#      - proxy-public:/usr/share/nginx/html
+#      - proxy-certs:/etc/nginx/certs:rw
+      - ${NGINX_FILES_PATH}/conf.d:/etc/nginx/conf.d
+      - ${NGINX_FILES_PATH}/vhost.d:/etc/nginx/vhost.d
+      - ${NGINX_FILES_PATH}/html:/usr/share/nginx/html
+      - ${NGINX_FILES_PATH}/certs:/etc/nginx/certs:rw
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      NGINX_DOCKER_GEN_CONTAINER: ${DOCKER_GEN}
+      NGINX_PROXY_CONTAINER: ${NGINX_WEB}
 
   django:
     env_file:
       - .env
     environment:
-       - DEBUG=False
+      DEBUG: "False"
+      VIRTUAL_HOST: ${DOMAINS}
+      LETSENCRYPT_HOST: ${DOMAINS}
+      LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL:-op.serenatadeamor@gmail.com}
+      HTTPS_METHOD: ${HTTPS_METHOD:-redirect}
+      VIRTUAL_PROTO: http
     depends_on:
        - memcached
     expose:
@@ -33,14 +96,13 @@ services:
   memcached:
     image: memcached:1.5.1-alpine
 
-  nginx:
-    image: datasciencebr/jarbas-server
-    depends_on:
-      - django
-    ports:
-      - "80:80"
-    volumes:
-      - assets:/code/staticfiles
-
 volumes:
   assets:
+#  proxy-conf:
+#  proxy-certs:
+#  proxy-vhost:
+#  proxy-public:
+networks:
+  default:
+    external:
+      name: ${NETWORK}
