@@ -1,4 +1,3 @@
-from datetime import date
 from io import StringIO
 from unittest.mock import patch
 
@@ -13,33 +12,6 @@ class TestCommand(TestCase):
 
     def setUp(self):
         self.command = Command()
-
-
-class TestSerializer(TestCommand):
-
-    def test_to_email(self):
-        expected = 'jane@example.com'
-        self.assertEqual(self.command.to_email('abc'), None)
-        self.assertEqual(self.command.to_email('jane@example.com'), expected)
-
-    def test_serializer(self):
-        company = {
-            'email': 'ahoy',
-            'opening': '31/12/1969',
-            'situation_date': '31/12/1969',
-            'special_situation_date': '31/12/1969',
-            'latitude': '3.1415',
-            'longitude': '-42'
-        }
-        expected = {
-            'email': None,
-            'opening': date(1969, 12, 31),
-            'situation_date': date(1969, 12, 31),
-            'special_situation_date': date(1969, 12, 31),
-            'latitude': 3.1415,
-            'longitude': -42.0
-        }
-        self.assertEqual(self.command.serialize(company), expected)
 
 
 class TestCreate(TestCommand):
