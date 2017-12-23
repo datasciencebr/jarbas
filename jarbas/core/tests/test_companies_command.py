@@ -37,11 +37,10 @@ class TestCreate(TestCommand):
     @patch('jarbas.core.management.commands.companies.Command.save_activities')
     @patch('jarbas.core.management.commands.companies.Command.print_count')
     @patch.object(Company.objects, 'create')
-    def test_save_companies(self, create, print_count, serialize, save_activities, rows, lzma):
+    def test_save_companies(self, create, print_count, save_activities, rows, lzma):
         self.command.count = 0
         lzma.return_value = StringIO()
         rows.return_value = [sample_company_data]
-        serialize.return_value = dict(ahoy=42)
         save_activities.return_value = ([3], [14, 15])
         self.command.path = 'companies.xz'
         self.command.save_companies()
