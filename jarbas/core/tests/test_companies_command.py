@@ -36,7 +36,6 @@ class TestCreate(TestCommand):
     @patch('jarbas.core.management.commands.companies.lzma')
     @patch('jarbas.core.management.commands.companies.csv.DictReader')
     @patch('jarbas.core.management.commands.companies.Command.save_activities')
-    @patch('jarbas.core.management.commands.companies.Command.serialize')
     @patch('jarbas.core.management.commands.companies.Command.print_count')
     @patch.object(Company.objects, 'create')
     def test_save_companies(self, create, print_count, serialize, save_activities, rows, lzma):
