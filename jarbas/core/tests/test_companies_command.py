@@ -34,7 +34,6 @@ class TestCreate(TestCommand):
         self.assertEqual(99, len(secondaries))
 
     @patch('jarbas.core.management.commands.companies.lzma')
-    @patch('jarbas.core.management.commands.companies.csv.DictReader')
     @patch('jarbas.core.management.commands.companies.Command.save_activities')
     @patch('jarbas.core.management.commands.companies.Command.print_count')
     @patch.object(Company.objects, 'create')
