@@ -45,8 +45,8 @@ INSTALLED_APPS = [
     'simple_history',
     'rest_framework',
     'jarbas.core.app.CoreConfig',
-    'jarbas.api',
-    'jarbas.frontend',
+    'jarbas.chamber_of_deputies.app.ChamberOfDeputiesConfig',
+    'jarbas.layers',
     'jarbas.dashboard',
     'django.contrib.admin',
     'django_extensions',
@@ -151,7 +151,8 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
     ],
-    'PAGE_SIZE': 7
+    'PAGE_SIZE': 7,
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination'
 }
 
 # Google
@@ -187,3 +188,12 @@ CACHES = {
         'TIMEOUT': 60 * 60 * 6
     }
 }
+
+
+# Queue
+
+CELERY_BROKER_URL = config('CELERY_BROKER_URL', default='amqp://guest:guest@localhost//')
+
+# Set home
+
+HOMES_REDIRECTS_TO = '/dashboard/chamber_of_deputies/reimbursement/'

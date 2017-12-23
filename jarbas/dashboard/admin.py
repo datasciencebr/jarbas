@@ -1,5 +1,4 @@
 import json
-import re
 
 from brazilnum.cnpj import format_cnpj
 from brazilnum.cpf import format_cpf
@@ -7,10 +6,10 @@ from django.contrib.admin import SimpleListFilter
 from django.contrib.postgres.search import SearchQuery, SearchRank
 from django.db.models import F
 from django.forms.widgets import Widget
-from simple_history.admin import SimpleHistoryAdmin
 
-from jarbas.core.models import Reimbursement
-from jarbas.dashboard.sites import dashboard
+from jarbas.chamber_of_deputies.models import Reimbursement
+from jarbas.public_admin.admin import PublicAdminModelAdmin
+from jarbas.public_admin.sites import public_admin
 
 
 ALL_FIELDS = sorted(Reimbursement._meta.fields, key=lambda f: f.verbose_name)
@@ -85,7 +84,28 @@ class SuspiciousListFilter(JarbasListFilter):
     )
 
     def queryset(self, request, queryset):
-        return queryset.suspicions() if self.value() == 'yes' else queryset
+        filter_option = {
+            'yes': queryset.suspicions(True),
+            'no': queryset.suspicions(False)
+        }
+        return filter_option.get(self.value(), queryset)
+
+
+class HasReceiptFilter(JarbasListFilter):
+
+    title = 'nota fiscal digitalizada'
+    parameter_name = 'has_receipt'
+    options = (
+        ('yes', 'Sim'),
+        ('no', 'Não'),
+    )
+
+    def queryset(self, request, queryset):
+        receipt_url_filter = {
+            'yes': queryset.has_receipt_url(True),
+            'no': queryset.has_receipt_url(False)
+        }
+        return receipt_url_filter.get(self.value(), queryset)
 
 
 class MonthListFilter(JarbasListFilter):
@@ -233,7 +253,7 @@ class SubquotaListFilter(SimpleListFilter, Subquotas):
         return queryset.filter(subquota_description=self.en_us(subquota))
 
 
-class ReimbursementModelAdmin(SimpleHistoryAdmin):
+class ReimbursementModelAdmin(PublicAdminModelAdmin):
 
     list_display = (
         'short_document_id',
@@ -253,6 +273,7 @@ class ReimbursementModelAdmin(SimpleHistoryAdmin):
 
     list_filter = (
         SuspiciousListFilter,
+        HasReceiptFilter,
         # 'available_in_latest_dataset',
         'state',
         'year',
@@ -281,7 +302,7 @@ class ReimbursementModelAdmin(SimpleHistoryAdmin):
     supplier_info.allow_tags = True
 
     def jarbas(self, obj):
-        base_url = 'https://jarbas.serenatadeamor.org/#/documentId/{}/'
+        base_url = '/layers/#/documentId/{}/'
         url = base_url.format(obj.document_id)
         image_src = '/static/favicon/favicon-16x16.png'
         image = '<img alt="Ver no Jarbas" src="{}">'.format(image_src)
@@ -313,6 +334,12 @@ class ReimbursementModelAdmin(SimpleHistoryAdmin):
     suspicious.short_description = 'suspeito'
     suspicious.boolean = True
 
+    def has_receipt_url(self, obj):
+        return obj.receipt_url is not None
+
+    has_receipt_url.short_description = 'recibo'
+    has_receipt_url.boolean = True
+
     def value(self, obj):
         return 'R$ {:.2f}'.format(obj.total_net_value).replace('.', ',')
 
@@ -333,26 +360,6 @@ class ReimbursementModelAdmin(SimpleHistoryAdmin):
     def subquota_translated(self, obj):
         return Subquotas.pt_br(obj.subquota_description)
 
-    def has_add_permission(self, request):
-        return False
-
-    def has_change_permission(self, request, obj=None):
-        return request.method == 'GET'
-
-    def has_delete_permission(self, request, obj=None):
-        return False
-
-    @staticmethod
-    def rename_change_url(url):
-        if 'change' in url.regex.pattern:
-            new_re = url.regex.pattern.replace('change', 'details')
-            url.regex = re.compile(new_re, re.UNICODE)
-        return url
-
-    def get_urls(self):
-        urls = filter(dashboard.valid_url, super().get_urls())
-        return list(map(self.rename_change_url, urls))
-
     def get_object(self, request, object_id, from_field=None):
         obj = super().get_object(request, object_id, from_field)
         if obj and not obj.receipt_fetched:
@@ -370,17 +377,18 @@ class ReimbursementModelAdmin(SimpleHistoryAdmin):
         return super().formfield_for_dbfield(db_field, **kwargs)
 
     def get_search_results(self, request, queryset, search_term):
-        if not search_term:
-            return super(ReimbursementModelAdmin, self) \
-                .get_search_results(request, queryset, search_term)
+        queryset, distinct = super(ReimbursementModelAdmin, self) \
+            .get_search_results(request, queryset, None)
 
-        query = SearchQuery(search_term, config='portuguese')
-        rank = SearchRank(F('search_vector'), query)
-        queryset = Reimbursement.objects.annotate(rank=rank) \
-            .filter(search_vector=query) \
-            .order_by('-rank')
+        if search_term:
+            query = SearchQuery(search_term, config='portuguese')
+            rank = SearchRank(F('search_vector'), query)
+            queryset = queryset.annotate(rank=rank).filter(search_vector=query)
 
-        return queryset, False
+            if not queryset.was_ordered():
+                queryset.order_by('-rank')
+
+        return queryset, distinct
 
 
-dashboard.register(Reimbursement, ReimbursementModelAdmin)
+public_admin.register(Reimbursement, ReimbursementModelAdmin)
