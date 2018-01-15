@@ -40,8 +40,8 @@ class Command(LoadCommand):
         """
         skip = ('main_activity', 'secondary_activity')
         keys = tuple(f.name for f in Company._meta.fields if f not in skip)
-        with lzma.open(self.path, mode='rt', encoding='utf-8') as file_handler:
-            for row in rows.import_from_csv(file_handler, force_types=companies_csv_field_types):
+        with lzma.open(self.path, mode='rb') as file_handler:
+            for row in rows.import_from_csv(file_handler, force_types=companies_csv_field_types, encoding='utf-8'):
                 row = row._asdict()
                 main, secondary = self.save_activities(row)
 
