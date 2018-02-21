@@ -8,6 +8,7 @@ from jarbas.core.models import Activity, Company
 class CompaniesDate(rows.fields.DateField):
     INPUT_FORMAT = '%d/%m/%Y'
 
+
 companies_csv_field_types = {
             'email': rows.fields.EmailField,
             'opening': CompaniesDate,
@@ -42,7 +43,8 @@ class Command(LoadCommand):
         keys = tuple(f.name for f in Company._meta.fields if f not in skip)
         with lzma.open(self.path, mode='rb') as file_handler:
             for row in rows.import_from_csv(file_handler, force_types=companies_csv_field_types, encoding='utf-8'):
-                row = row._asdict()
+                row = dict(row._asdict())
+
                 main, secondary = self.save_activities(row)
 
                 filtered = {k: v for k, v in row.items() if k in keys}
