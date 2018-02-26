@@ -15,6 +15,7 @@ __pycache__/
 app.css
 app.js
 ceap-datasets.html
+docs/build/
 elm-stuff/
 jarbas/frontend/tests/Doc/
 jarbas/frontend/tests/elm-package.json
