@@ -1,11 +1,22 @@
-import csv
 import lzma
-
-from django.core.exceptions import ValidationError
-from django.core.validators import validate_email
+import rows
 
 from jarbas.core.management.commands import LoadCommand
 from jarbas.core.models import Activity, Company
+
+
+class CompaniesDate(rows.fields.DateField):
+    INPUT_FORMAT = '%d/%m/%Y'
+
+
+companies_csv_field_types = {
+            'email': rows.fields.EmailField,
+            'opening': CompaniesDate,
+            'situation_date': CompaniesDate,
+            'special_situation_date': CompaniesDate,
+            'latitude': rows.fields.FloatField,
+            'longitude': rows.fields.FloatField
+        }
 
 
 class Command(LoadCommand):
@@ -30,12 +41,14 @@ class Command(LoadCommand):
         """
         skip = ('main_activity', 'secondary_activity')
         keys = tuple(f.name for f in Company._meta.fields if f not in skip)
-        with lzma.open(self.path, mode='rt', encoding='utf-8') as file_handler:
-            for row in csv.DictReader(file_handler):
+        with lzma.open(self.path, mode='rb') as file_handler:
+            for row in rows.import_from_csv(file_handler, force_types=companies_csv_field_types, encoding='utf-8'):
+                row = dict(row._asdict())
+
                 main, secondary = self.save_activities(row)
 
                 filtered = {k: v for k, v in row.items() if k in keys}
-                obj = Company.objects.create(**self.serialize(filtered))
+                obj = Company.objects.create(**filtered)
                 for activity in main:
                     obj.main_activity.add(activity)
                 for activity in secondary:
@@ -62,25 +75,3 @@ class Command(LoadCommand):
                 secondaries.append(obj)
 
         return [main], secondaries
-
-    def serialize(self, row):
-        row['email'] = self.to_email(row['email'])
-
-        dates = ('opening', 'situation_date', 'special_situation_date')
-        for key in dates:
-            row[key] = self.to_date(row[key])
-
-        decimals = ('latitude', 'longitude')
-        for key in decimals:
-            row[key] = self.to_number(row[key])
-
-        return row
-
-    @staticmethod
-    def to_email(email):
-        try:
-            validate_email(email)
-            return email
-
-        except ValidationError:
-            return None

@@ -1,45 +1,18 @@
-from datetime import date
-from io import StringIO
+import datetime
+import os
 from unittest.mock import patch
 
+from django.conf import settings
 from django.test import TestCase
 
 from jarbas.core.management.commands.companies import Command
 from jarbas.core.models import Activity, Company
-from jarbas.core.tests import sample_company_data
 
 
 class TestCommand(TestCase):
 
     def setUp(self):
         self.command = Command()
-
-
-class TestSerializer(TestCommand):
-
-    def test_to_email(self):
-        expected = 'jane@example.com'
-        self.assertEqual(self.command.to_email('abc'), None)
-        self.assertEqual(self.command.to_email('jane@example.com'), expected)
-
-    def test_serializer(self):
-        company = {
-            'email': 'ahoy',
-            'opening': '31/12/1969',
-            'situation_date': '31/12/1969',
-            'special_situation_date': '31/12/1969',
-            'latitude': '3.1415',
-            'longitude': '-42'
-        }
-        expected = {
-            'email': None,
-            'opening': date(1969, 12, 31),
-            'situation_date': date(1969, 12, 31),
-            'special_situation_date': date(1969, 12, 31),
-            'latitude': 3.1415,
-            'longitude': -42.0
-        }
-        self.assertEqual(self.command.serialize(company), expected)
 
 
 class TestCreate(TestCommand):
@@ -61,22 +34,28 @@ class TestCreate(TestCommand):
         self.assertEqual(1, len(main))
         self.assertEqual(99, len(secondaries))
 
-    @patch('jarbas.core.management.commands.companies.lzma')
-    @patch('jarbas.core.management.commands.companies.csv.DictReader')
     @patch('jarbas.core.management.commands.companies.Command.save_activities')
-    @patch('jarbas.core.management.commands.companies.Command.serialize')
     @patch('jarbas.core.management.commands.companies.Command.print_count')
     @patch.object(Company.objects, 'create')
-    def test_save_companies(self, create, print_count, serialize, save_activities, rows, lzma):
+    def test_save_companies(self, create, print_count, save_activities):
         self.command.count = 0
-        lzma.return_value = StringIO()
-        rows.return_value = [sample_company_data]
-        serialize.return_value = dict(ahoy=42)
         save_activities.return_value = ([3], [14, 15])
-        self.command.path = 'companies.xz'
+        self.command.path = os.path.join(settings.BASE_DIR, 'jarbas', 'core', 'tests',
+                                         'fixtures', 'companies.xz')
         self.command.save_companies()
-        create.assert_called_with(ahoy=42)
+        expected = {
+                    'additional_address_details': b'', 'address': b'',
+                    'city': b'', 'cnpj': b'', 'email': 'test@test.com.br', 'last_updated': b'',
+                    'latitude': -15.7910966, 'legal_entity': b'', 'longitude': -47.9508743,
+                    'name': 'Test', 'neighborhood': b'', 'number': 1, 'opening': None,
+                    'phone': b'', 'responsible_federative_entity': b'',
+                    'situation': b'', 'zip_code': b'', 'situation_date': datetime.date(2005, 9, 24),
+                    'situation_reason': b'', 'type': 'Book', 'special_situation_date': None,
+                    'state': b'', 'status': b'', 'trade_name': b'', 'special_situation': b''
+                    }
+        create.assert_called_with(**expected)
         create.return_value.main_activity.add.assert_called_with(3)
+        self.assertEqual(1, print_count.call_count)
         self.assertEqual(2, create.return_value.secondary_activity.add.call_count)
 
 
