@@ -9,14 +9,14 @@ class CompaniesDate(rows.fields.DateField):
     INPUT_FORMAT = '%d/%m/%Y'
 
 
-companies_csv_field_types = {
-            'email': rows.fields.EmailField,
-            'opening': CompaniesDate,
-            'situation_date': CompaniesDate,
-            'special_situation_date': CompaniesDate,
-            'latitude': rows.fields.FloatField,
-            'longitude': rows.fields.FloatField
-        }
+COMPANIES_CSV_FIELD_TYPES = {
+    'email': rows.fields.EmailField,
+    'opening': CompaniesDate,
+    'situation_date': CompaniesDate,
+    'special_situation_date': CompaniesDate,
+    'latitude': rows.fields.FloatField,
+    'longitude': rows.fields.FloatField
+}
 
 
 class Command(LoadCommand):
@@ -42,7 +42,7 @@ class Command(LoadCommand):
         skip = ('main_activity', 'secondary_activity')
         keys = tuple(f.name for f in Company._meta.fields if f not in skip)
         with lzma.open(self.path, mode='rb') as file_handler:
-            for row in rows.import_from_csv(file_handler, force_types=companies_csv_field_types, encoding='utf-8'):
+            for row in rows.import_from_csv(file_handler, force_types=COMPANIES_CSV_FIELD_TYPES, encoding='utf-8'):
                 row = dict(row._asdict())
 
                 main, secondary = self.save_activities(row)

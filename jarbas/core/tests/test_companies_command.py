@@ -44,15 +44,32 @@ class TestCreate(TestCommand):
                                          'fixtures', 'companies.xz')
         self.command.save_companies()
         expected = {
-                    'additional_address_details': b'', 'address': b'',
-                    'city': b'', 'cnpj': b'', 'email': 'test@test.com.br', 'last_updated': b'',
-                    'latitude': -15.7910966, 'legal_entity': b'', 'longitude': -47.9508743,
-                    'name': 'Test', 'neighborhood': b'', 'number': 1, 'opening': None,
-                    'phone': b'', 'responsible_federative_entity': b'',
-                    'situation': b'', 'zip_code': b'', 'situation_date': datetime.date(2005, 9, 24),
-                    'situation_reason': b'', 'type': 'Book', 'special_situation_date': None,
-                    'state': b'', 'status': b'', 'trade_name': b'', 'special_situation': b''
-                    }
+            'additional_address_details': b'',
+            'address': b'',
+            'city': b'',
+            'cnpj': b'',
+            'email': 'test@test.com.br',
+            'last_updated': b'',
+            'latitude': -15.7910966,
+            'legal_entity': b'',
+            'longitude': -47.9508743,
+            'name': 'Test',
+            'neighborhood': b'',
+            'number': 1,
+            'opening': None,
+            'phone': b'',
+            'responsible_federative_entity': b'',
+            'situation': b'',
+            'zip_code': b'',
+            'situation_date': datetime.date(2005, 9, 24),
+            'situation_reason': b'',
+            'type': 'Book',
+            'special_situation_date': None,
+            'state': b'',
+            'status': b'',
+            'trade_name': b'',
+            'special_situation': b''
+        }
         create.assert_called_with(**expected)
         create.return_value.main_activity.add.assert_called_with(3)
         self.assertEqual(1, print_count.call_count)
